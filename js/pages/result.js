@@ -162,6 +162,7 @@
                     '<div class="interp-name">' + t.name + '</div>' +
                     '<div class="interp-xuan">太玄对应：' + t.xuanRef + '</div>' +
                     '<div class="interp-text">' + t.interpretation + '</div>' +
+                    (t.advice ? '<div class="interp-advice"><span class="advice-label">行动建议：</span>' + t.advice + '</div>' : '') +
                     '<div class="interp-desc">' + t.desc + '</div>' +
                   '</div>'
                 ).join('') +

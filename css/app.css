@@ -2196,6 +2196,21 @@ body {
   margin-bottom: var(--space-xs);
 }
 
+.interp-advice {
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: var(--space-xs);
+  padding-left: var(--space-sm);
+  border-left: 2px solid var(--accent-color);
+}
+
+.advice-label {
+  font-weight: bold;
+  color: var(--text-primary);
+  margin-right: var(--space-xs);
+}
+
 .interp-desc {
   font-size: var(--font-sm);
   color: var(--text-secondary);
