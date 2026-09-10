@@ -2,6 +2,24 @@
 (function () {
   'use strict'
 
+  // 四占注释（每条 ≤20 字）
+  const FOUR_FACTOR_NOTES = {
+    star: '五行属性，主星气运',
+    time: '时令节气，天地之机',
+    number: '昼夜阴阳，消长之数',
+    ci: '赞位名目，判事之辞',
+  }
+
+  // 六揲注释（每条 ≤20 字）
+  const SIX_ROUND_NOTES = {
+    '方': '第一揲定方，如天之四时',
+    '州': '第二揲定州，如地之九州',
+    '部': '第三揲定部，如人之分职',
+    '家': '第四揲定家，如事之归宿',
+    '赞·高位': '第五揲定赞高，上卦之位',
+    '赞·低位': '第六揲定赞低，下卦之位',
+  }
+
   TXPages.result = {
     title: '卜卦结果',
 
@@ -173,10 +191,10 @@
         '<div class="factors-section card">' +
           '<div class="section-title">四占</div>' +
           '<div class="factors-grid">' +
-            '<div class="factor-item"><span class="factor-label">星</span><span class="factor-value">' + result.fourFactors.star + '</span></div>' +
-            '<div class="factor-item"><span class="factor-label">时</span><span class="factor-value">' + result.fourFactors.time + '</span></div>' +
-            '<div class="factor-item"><span class="factor-label">数</span><span class="factor-value">' + result.fourFactors.number + '</span></div>' +
-            '<div class="factor-item"><span class="factor-label">辞</span><span class="factor-value">' + result.fourFactors.ci + '</span></div>' +
+            '<div class="factor-item"><span class="factor-label">星</span><span class="factor-value">' + result.fourFactors.star + '</span><span class="factor-note">' + FOUR_FACTOR_NOTES.star + '</span></div>' +
+            '<div class="factor-item"><span class="factor-label">时</span><span class="factor-value">' + result.fourFactors.time + '</span><span class="factor-note">' + FOUR_FACTOR_NOTES.time + '</span></div>' +
+            '<div class="factor-item"><span class="factor-label">数</span><span class="factor-value">' + result.fourFactors.number + '</span><span class="factor-note">' + FOUR_FACTOR_NOTES.number + '</span></div>' +
+            '<div class="factor-item"><span class="factor-label">辞</span><span class="factor-value">' + result.fourFactors.ci + '</span><span class="factor-note">' + FOUR_FACTOR_NOTES.ci + '</span></div>' +
           '</div>' +
         '</div>' +
 
@@ -192,6 +210,7 @@
                       r.coinsText.map(c => '<span class="coin-mini ' + (c === '阳' ? 'coin-yang' : 'coin-yin') + '">' + c + '</span>').join('') +
                     '</div>'
                   : '') +
+                '<span class="round-detail-note">' + (SIX_ROUND_NOTES[r.label] || '') + '</span>' +
               '</div>'
             ).join('') +
           '</div>' +

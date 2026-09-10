@@ -2077,6 +2077,16 @@ body {
   color: var(--text-primary);
 }
 
+.factor-note {
+  display: block;
+  width: 100%;
+  font-size: var(--font-xs);
+  color: var(--text-placeholder);
+  margin-top: 2px;
+  line-height: 1.4;
+  letter-spacing: 0.5px;
+}
+
 /* --- 六揲详情 --- */
 .rounds-detail-list {
   display: flex;
@@ -2117,6 +2127,17 @@ body {
   font-size: 9px;
   padding: 1px 4px;
   border-radius: 2px;
+}
+
+.round-detail-note {
+  font-size: var(--font-xs);
+  color: var(--text-placeholder);
+  margin-left: auto;
+  text-align: right;
+  line-height: 1.4;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+  max-width: 140px;
 }
 
 /* --- 起卦信息 --- */
