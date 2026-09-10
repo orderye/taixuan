@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>太玄经起卦初始化方案</title>
+  <style>
+    @font-face {
+      font-family: 'Crimson';
+      src: url('./_shared/fonts/CrimsonPro-Regular.ttf') format('truetype');
+      font-weight: 400;
+    }
+    @font-face {
+      font-family: 'Crimson';
+      src: url('./_shared/fonts/CrimsonPro-Bold.ttf') format('truetype');
+      font-weight: 700;
+    }
+    @font-face {
+      font-family: 'Young';
+      src: url('./_shared/fonts/YoungSerif-Regular.ttf') format('truetype');
+      font-weight: 400;
+    }
+    @font-face {
+      font-family: 'JetBrains';
+      src: url('./_shared/fonts/JetBrainsMono-Regular.ttf') format('truetype');
+      font-weight: 400;
+    }
+
+    :root {
+      --bg: #f7f1e5;
+      --bg2: #fbf7ec;
+      --ink: #1a1815;
+      --muted: #6b6559;
+      --rule: #d4c7b0;
+      --accent: #8b1a1a;
+      --accent2: #4a5d6b;
+      --accent3: #2d6a4f;
+      --accent4: #8b6914;
+      --font: 'Crimson', 'Noto Serif SC', 'STSong', 'SimSun', serif;
+      --font-mono: 'JetBrains', 'Noto Sans Mono SC', monospace;
+      --max: 960px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.8;
+      padding-bottom: 100px;
+    }
+
+    .cover {
+      background: linear-gradient(180deg, #2a1f14 0%, #3d2e1c 60%, var(--bg) 100%);
+      color: #f7f1e5;
+      padding: 4rem 2rem 3rem;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .cover h1 {
+      font-family: 'Young', 'Noto Serif SC', serif;
+      font-size: 2.4rem;
+      font-weight: 400;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.3rem;
+    }
+    .cover .subtitle {
+      font-size: 1rem;
+      color: #c8bca8;
+      font-style: italic;
+    }
+    .cover .meta {
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      color: #9a8e7a;
+    }
+
+    article.page {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 1.5rem 4rem;
+    }
+
+    h2 {
+      font-family: 'Young', 'Noto Serif SC', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 0.3rem;
+      margin: 2.5rem 0 1rem;
+    }
+    h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--accent2);
+      margin: 1.5rem 0 0.5rem;
+    }
+    h4 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--accent3);
+      margin: 1rem 0 0.3rem;
+    }
+    p { margin-bottom: 0.6rem; }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.85em;
+      background: rgba(139,26,26,0.06);
+      padding: 0.1em 0.35em;
+      border-radius: 3px;
+      color: var(--accent);
+    }
+
+    .note {
+      background: rgba(45,106,79,0.08);
+      border-left: 3px solid var(--accent3);
+      padding: 0.6rem 1rem;
+      border-radius: 0 4px 4px 0;
+      margin: 0.8rem 0;
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .flow-diagram {
+      background: var(--bg2);
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      padding: 1.5rem;
+      margin: 1rem 0;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.8;
+      overflow-x: auto;
+    }
+    .flow-diagram .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.8rem;
+      margin-bottom: 0.3rem;
+    }
+    .flow-diagram .step-num {
+      flex-shrink: 0;
+      width: 1.8rem;
+      height: 1.8rem;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .flow-diagram .step-num.alt { background: var(--accent2); }
+    .flow-diagram .step-num.alt2 { background: var(--accent3); }
+    .flow-diagram .arrow {
+      margin-left: 2.6rem;
+      color: var(--muted);
+      margin-bottom: 0.3rem;
+    }
+
+    /* === 模式切换 === */
+    .mode-toggle {
+      display: flex;
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    .mode-btn {
+      flex: 1;
+      padding: 1.5rem 1rem;
+      border: 2px solid var(--rule);
+      border-radius: 8px;
+      background: var(--bg2);
+      cursor: pointer;
+      transition: all 0.25s;
+      text-align: center;
+      position: relative;
+    }
+    .mode-btn:hover {
+      border-color: var(--accent2);
+    }
+    .mode-btn.active {
+      border-color: var(--accent);
+      background: rgba(139,26,26,0.06);
+      box-shadow: 0 2px 8px rgba(139,26,26,0.12);
+    }
+    .mode-btn .mode-title {
+      font-family: 'Young', 'Noto Serif SC', serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 0.3rem;
+    }
+    .mode-btn.active .mode-title { color: var(--accent); }
+    .mode-btn .mode-desc {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .mode-btn .mode-badge {
+      position: absolute;
+      top: -8px;
+      right: 12px;
+      font-size: 0.65rem;
+      padding: 0.1rem 0.5rem;
+      border-radius: 3px;
+      font-weight: 700;
+      background: var(--accent);
+      color: #fff;
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+    .mode-btn.active .mode-badge { opacity: 1; }
+
+    /* === 分类标签 === */
+    .category-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin: 1.2rem 0;
+      flex-wrap: wrap;
+    }
+    .cat-tab {
+      padding: 0.5rem 1.2rem;
+      border: 1.5px solid var(--rule);
+      border-radius: 20px;
+      background: var(--bg2);
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .cat-tab:hover { border-color: var(--accent2); }
+    .cat-tab.active {
+      color: #fff;
+      border-color: var(--cat-color, var(--accent));
+      background: var(--cat-color, var(--accent));
+    }
+
+    /* === 预测类型卡片 === */
+    .type-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.8rem;
+      margin: 1rem 0;
+    }
+    @media (max-width: 720px) {
+      .type-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 480px) {
+      .type-grid { grid-template-columns: 1fr; }
+    }
+    .type-card {
+      padding: 0.8rem 1rem;
+      border: 2px solid var(--rule);
+      border-radius: 6px;
+      background: var(--bg2);
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .type-card:hover {
+      border-color: var(--accent2);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+    .type-card.selected {
+      border-color: var(--accent);
+      background: rgba(139,26,26,0.06);
+      box-shadow: 0 2px 8px rgba(139,26,26,0.15);
+    }
+    .type-card.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .type-card.disabled:hover {
+      transform: none;
+      box-shadow: none;
+      border-color: var(--rule);
+    }
+    .type-card .tc-num {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+    .type-card .tc-name {
+      font-weight: 700;
+      font-size: 1.02rem;
+      margin: 0.15rem 0 0.3rem;
+      color: var(--ink);
+    }
+    .type-card.selected .tc-name { color: var(--accent); }
+    .type-card .tc-desc {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .type-card .tc-xuan {
+      font-size: 0.7rem;
+      color: var(--accent3);
+      margin-top: 0.3rem;
+      font-style: italic;
+    }
+    .type-card .tc-check {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.6rem;
+      font-size: 1rem;
+      color: var(--accent);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .type-card.selected .tc-check { opacity: 1; }
+    .type-card .tc-order {
+      position: absolute;
+      top: 0.4rem;
+      right: 0.6rem;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    /* === 复合预设 === */
+    .preset-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.8rem;
+      margin: 1rem 0;
+    }
+    @media (max-width: 640px) {
+      .preset-grid { grid-template-columns: 1fr; }
+    }
+    .preset-card {
+      padding: 0.8rem 1rem;
+      border: 2px solid var(--rule);
+      border-radius: 6px;
+      background: var(--bg2);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+    }
+    .preset-card:hover {
+      border-color: var(--accent4);
+      transform: translateY(-1px);
+    }
+    .preset-card.selected {
+      border-color: var(--accent4);
+      background: rgba(139,105,20,0.06);
+    }
+    .preset-card .pc-num {
+      flex-shrink: 0;
+      width: 1.6rem;
+      height: 1.6rem;
+      border-radius: 50%;
+      background: var(--accent4);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+    }
+    .preset-card .pc-body { flex: 1; }
+    .preset-card .pc-name {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--ink);
+      margin-bottom: 0.2rem;
+    }
+    .preset-card.selected .pc-name { color: var(--accent4); }
+    .preset-card .pc-desc {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .preset-card .pc-types {
+      font-size: 0.72rem;
+      color: var(--accent4);
+      margin-top: 0.2rem;
+    }
+
+    /* === 起卦配置 === */
+    .config-section {
+      background: var(--bg2);
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      padding: 1.2rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .config-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 0.5rem 0;
+      flex-wrap: wrap;
+    }
+    .config-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--muted);
+      min-width: 5rem;
+    }
+    .method-toggle {
+      display: flex;
+      gap: 0.4rem;
+    }
+    .method-btn {
+      padding: 0.35rem 1rem;
+      border: 1.5px solid var(--rule);
+      border-radius: 4px;
+      background: var(--bg);
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+    .method-btn.active {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+    }
+    .question-input {
+      flex: 1;
+      min-width: 200px;
+      padding: 0.4rem 0.8rem;
+      border: 1.5px solid var(--rule);
+      border-radius: 4px;
+      font-size: 0.88rem;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--ink);
+    }
+    .question-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    /* === 结果展示 === */
+    .result-section {
+      margin: 1.5rem 0;
+    }
+    .result-card {
+      background: var(--bg2);
+      border: 1px solid var(--rule);
+      border-left: 4px solid var(--accent);
+      border-radius: 6px;
+      padding: 1.2rem 1.5rem;
+      margin: 0.8rem 0;
+    }
+    .result-card.fortune-ji {
+      border-left-color: var(--accent3);
+    }
+    .result-card.fortune-xiong {
+      border-left-color: var(--accent);
+    }
+    .result-card .rc-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.2rem;
+    }
+    .result-card .rc-value {
+      font-size: 1rem;
+      color: var(--ink);
+    }
+    .result-card .rc-value.big {
+      font-family: 'Young', 'Noto Serif SC', serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+    }
+    .result-card .rc-classic {
+      font-size: 0.9rem;
+      color: var(--accent2);
+      font-style: italic;
+      margin-top: 0.3rem;
+      line-height: 1.7;
+    }
+    .result-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.8rem;
+      margin: 0.8rem 0;
+    }
+    @media (max-width: 640px) {
+      .result-grid { grid-template-columns: 1fr; }
+    }
+    .fortune-tag {
+      display: inline-block;
+      padding: 0.15rem 0.8rem;
+      border-radius: 3px;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+    .fortune-tag.ji { background: var(--accent3); color: #fff; }
+    .fortune-tag.xiong { background: var(--accent); color: #fff; }
+    .fortune-tag.mid { background: var(--accent4); color: #fff; }
+
+    /* === 底部选择栏 === */
+    .selection-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg2);
+      border-top: 2px solid var(--accent);
+      padding: 0.7rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 100;
+      box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
+      gap: 1rem;
+    }
+    .sb-left {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      min-width: 0;
+    }
+    .sb-mode {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.15rem 0.6rem;
+      border-radius: 3px;
+      white-space: nowrap;
+      background: var(--accent);
+      color: #fff;
+    }
+    .sb-mode.composite { background: var(--accent4); }
+    .sb-selections {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: nowrap;
+      overflow: hidden;
+    }
+    .sb-chip {
+      font-size: 0.82rem;
+      padding: 0.15rem 0.6rem;
+      border-radius: 3px;
+      background: var(--bg);
+      border: 1px solid var(--rule);
+      white-space: nowrap;
+      color: var(--ink);
+    }
+    .sb-chip.composite-name {
+      border-color: var(--accent4);
+      color: var(--accent4);
+      font-weight: 700;
+    }
+    .sb-empty {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    .sb-right {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      flex-shrink: 0;
+    }
+    .sb-method {
+      display: flex;
+      gap: 0.3rem;
+    }
+    .sb-method-btn {
+      padding: 0.25rem 0.7rem;
+      border: 1.5px solid var(--rule);
+      border-radius: 4px;
+      background: var(--bg);
+      cursor: pointer;
+      font-size: 0.78rem;
+      transition: all 0.2s;
+    }
+    .sb-method-btn.active {
+      border-color: var(--accent2);
+      background: var(--accent2);
+      color: #fff;
+    }
+    .sb-start {
+      padding: 0.5rem 1.5rem;
+      border: none;
+      border-radius: 4px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: var(--font);
+    }
+    .sb-start:hover {
+      background: #a02020;
+      transform: translateY(-1px);
+    }
+    .sb-start:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+    }
+    @media (max-width: 640px) {
+      .selection-bar { flex-direction: column; padding: 0.5rem 0.8rem; }
+      .sb-left { width: 100%; }
+      .sb-right { width: 100%; justify-content: space-between; }
+    }
+
+    /* === 参考表格 === */
+    .table-wrap {
+      overflow-x: auto;
+      margin: 1rem 0;
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    th, td {
+      padding: 0.35rem 0.5rem;
+      border: 1px solid var(--rule);
+      text-align: center;
+    }
+    th {
+      background: var(--bg2);
+      font-weight: 700;
+      color: var(--accent);
+    }
+    tr:nth-child(even) { background: var(--bg2); }
+    td.composite-row { color: var(--accent4); font-weight: 700; }
+
+    .center { text-align: center; }
+    .hidden { display: none !important; }
+    .fade-in { animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="cover">
+  <h1>太玄经起卦初始化方案</h1>
+  <div class="subtitle">Divination Initialization Scheme</div>
+  <div class="meta">基于《太玄经》扬雄原著 · 司马光集注 · 黄宗羲太玄蓍法<br>2026-09-09</div>
+</div>
+
+<article class="page">
+
+  <!-- ============================================================ -->
+  <h2 id="overview">一、方案概述</h2>
+
+  <p>本方案为太玄经起卦流程构建初始化选项系统。起卦前，占者须先明确所问之事，选定预测类型，方可入卦推演。太玄经以"方州部家"四揲定首、"两揲定赞"，共六揲而成一卦，其根本在于<strong>以天道观人事</strong>——不同的人生境遇，对应太玄经中不同的"时位"与"阴阳交感"之理。</p>
+
+  <p>初始化选项分为<strong>单项</strong>与<strong>复合</strong>两种模式：</p>
+
+  <div class="flow-diagram">
+    <div class="step"><span class="step-num">1</span><span><strong>选择模式</strong> — 单项占测 / 复合占测（每次起卦仅选一种）</span></div>
+    <div class="arrow">↓</div>
+    <div class="step"><span class="step-num alt">2</span><span><strong>选择预测类型</strong> — 单项选1个 / 复合选2个（从40种核心类型中选取）</span></div>
+    <div class="arrow">↓</div>
+    <div class="step"><span class="step-num alt2">3</span><span><strong>配置起卦</strong> — 输入问题（可选）、选择起卦方法（揲蓍法/硬币法）</span></div>
+    <div class="arrow">↓</div>
+    <div class="step"><span class="step-num">4</span><span><strong>执行起卦</strong> — 六揲定卦，推演首赞</span></div>
+    <div class="arrow">↓</div>
+    <div class="step"><span class="step-num alt">5</span><span><strong>解读结果</strong> — 首赞信息、吉凶判断、类型专属解读</span></div>
+  </div>
+
+  <div class="note">
+    <strong>设计原则：</strong>
+    <ul style="margin:0.3rem 0 0 1.2rem">
+      <li>单项模式：专注一事，对应太玄经"一赞一测"的传统用法</li>
+      <li>复合模式：交叉占测，衍生组合场景，覆盖人生百态的50种常见预测需求</li>
+      <li>每次起卦只能选择一种模式，避免卦象混乱</li>
+    </ul>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="mode-rules">二、单项与复合模式</h2>
+
+  <div class="mode-toggle" id="modeToggle">
+    <div class="mode-btn active" data-mode="single" onclick="selectMode('single')">
+      <span class="mode-badge">当前模式</span>
+      <div class="mode-title">单项占测</div>
+      <div class="mode-desc">从40种预测类型中选择<strong>1个</strong><br>对应单一场景，专注一事一问</div>
+    </div>
+    <div class="mode-btn" data-mode="composite" onclick="selectMode('composite')">
+      <span class="mode-badge">当前模式</span>
+      <div class="mode-title">复合占测</div>
+      <div class="mode-desc">从40种预测类型中选择<strong>2个</strong><br>衍生组合场景，交叉推演</div>
+    </div>
+  </div>
+
+  <table style="width:100%; border-collapse:collapse; font-size:0.85rem; margin:1rem 0;">
+    <tr style="background:var(--bg2)">
+      <th style="padding:0.5rem; border:1px solid var(--rule); text-align:center;">维度</th>
+      <th style="padding:0.5rem; border:1px solid var(--rule); text-align:center; color:var(--accent);">单项占测</th>
+      <th style="padding:0.5rem; border:1px solid var(--rule); text-align:center; color:var(--accent4);">复合占测</th>
+    </tr>
+    <tr>
+      <td style="padding:0.4rem 0.5rem; border:1px solid var(--rule); text-align:center;">选择数量</td>
+      <td style="padding:0.4rem 0.5rem; border:1px solid var(--rule); text-align:center;">1个</td>
+      <td style="padding:0.4rem 0.5rem; border:1px solid var(--rule); text-align:center;">2个</td>
+    </tr>
+    <tr style="background:var(--bg2)">
+      <td style="padding:0.4rem 0.5rem; border:1px solid var(--rule); text-align:center;">太玄经对应</td>
+      <td style="padding:0.4rem 0.5rem; border:1px solid var(--rule); text-align:center;">一赞一测，专注一事</td>
+      <td style="padding:0.4rem 0.5rem; border:1px solid var(--rule); text-align:center;">阴阳交感，两象叠推</td>
+    </tr>
+    <tr>
+      <td style="padding:0.4rem 0.5rem; border:1px solid var(--rule); text-align:center;">场景覆盖</td>
+      <td style="padding:0.4rem 0.5rem; border:1px solid var(--rule); text-align:center;">40种核心类型</td>
+      <td style="padding:0.4rem 0.5rem; border:1px solid var(--rule); text-align:center;">10种预设 + 自由组合</td>
+    </tr>
+    <tr style="background:var(--bg2)">
+      <td style="padding:0.4rem 0.5rem; border:1px solid var(--rule); text-align:center;">适用情境</td>
+      <td style="padding:0.4rem 0.5rem; border:1px solid var(--rule); text-align:center;">问题明确，单一维度</td>
+      <td style="padding:0.4rem 0.5rem; border:1px solid var(--rule); text-align:center;">问题复杂，多因素交织</td>
+    </tr>
+  </table>
+
+  <!-- ============================================================ -->
+  <h2 id="types">三、预测类型选择</h2>
+
+  <p>以下为40种核心预测类型，按四大分类组织。每类对应《太玄经》中的核心哲学原理：</p>
+
+  <div class="category-tabs" id="categoryTabs">
+    <!-- 由JS动态生成 -->
+  </div>
+
+  <div class="type-grid" id="typeGrid">
+    <!-- 由JS动态生成 -->
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="composite-section" class="hidden" >四、复合场景库</h2>
+
+  <div id="compositePresetsContainer" class="hidden">
+    <p>以下为10种预设复合场景，亦可自由选择两个类型进行组合占测。预设场景已有专属名称，自由组合将以"<code>类型甲 × 类型乙</code>"形式命名。</p>
+    <div class="preset-grid" id="presetGrid">
+      <!-- 由JS动态生成 -->
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="execute">五、起卦执行</h2>
+
+  <div class="config-section" id="configSection">
+    <div class="config-row">
+      <span class="config-label">起卦方法</span>
+      <div class="method-toggle">
+        <div class="method-btn active" data-method="sticks" onclick="setMethod('sticks')">揲蓍法（签策）</div>
+        <div class="method-btn" data-method="coins" onclick="setMethod('coins')">硬币法</div>
+      </div>
+    </div>
+    <div class="config-row">
+      <span class="config-label">起卦问题</span>
+      <input type="text" class="question-input" id="questionInput" placeholder="输入所问之事（可选，用于生成卦种种子）" oninput="state.question=this.value">
+    </div>
+    <div class="note" style="margin:0.5rem 0">
+      <strong>揲蓍法</strong>：模拟33策传统操作，六揲定首赞，最接近太玄经原法。<br>
+      <strong>硬币法</strong>：三枚硬币一轮，六轮成卦，简便快捷。<br>
+      若输入问题，将基于问题文本生成随机种子，使卦象与问题相关联且可复现。
+    </div>
+  </div>
+
+  <div class="result-section" id="resultSection">
+    <!-- 起卦结果由JS动态生成 -->
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="reference">六、50种场景索引</h2>
+
+  <p>40种单项核心类型 + 10种预设复合场景 = 50种常见预测需求。</p>
+
+  <div class="table-wrap" id="referenceTable">
+    <!-- 由JS动态生成 -->
+  </div>
+
+</article>
+
+<!-- 底部选择栏 -->
+<div class="selection-bar" id="selectionBar">
+  <div class="sb-left">
+    <span class="sb-mode" id="sbMode">单项</span>
+    <div class="sb-selections" id="sbSelections">
+      <span class="sb-empty">请选择1个预测类型</span>
+    </div>
+  </div>
+  <div class="sb-right">
+    <div class="sb-method">
+      <div class="sb-method-btn active" data-method="sticks" onclick="setMethod('sticks')">揲蓍</div>
+      <div class="sb-method-btn" data-method="coins" onclick="setMethod('coins')">硬币</div>
+    </div>
+    <button class="sb-start" id="sbStart" onclick="executeDivination()" disabled>开始起卦</button>
+  </div>
+</div>
+
+<script src="divination-engine.js"></script>
+<script src="divination-data.js"></script>
+<script>
+// ============================================================
+// 数据定义
+// ============================================================
+
+const CATEGORIES = [
+  {
+    id: 'career',
+    name: '事业与财富',
+    subtitle: '入世谋生类',
+    xuanRef: '时位与进退',
+    color: '#8b1a1a',
+    types: [
+      { id: 1, name: '求职应聘', desc: '测算面试机遇、岗位匹配度及入职时机', kw: '求职' },
+      { id: 2, name: '事业升迁', desc: '评估晋升阻力、贵人运及职场人际环境', kw: '升迁' },
+      { id: 3, name: '创业投资', desc: '测算项目前景、资金链风险及合伙人契合度', kw: '创业' },
+      { id: 4, name: '商业谈判', desc: '评估合作诚意、谈判筹码及最终签约概率', kw: '谈判' },
+      { id: 5, name: '投资理财', desc: '测算市场趋势、资产配置时机及盈亏风险', kw: '理财' },
+      { id: 6, name: '房产置业', desc: '评估购房/卖房时机、地段风水及交易纠纷', kw: '置业' },
+      { id: 7, name: '职场人际', desc: '测算上下级关系、同僚竞争及小人防范', kw: '职场' },
+      { id: 8, name: '职业转型', desc: '评估跨行风险、能力匹配度及转型阵痛期', kw: '转型' },
+      { id: 9, name: '学业考试', desc: '测算备考状态、考场发挥及录取概率', kw: '考学' },
+      { id: 10, name: '名誉声望', desc: '评估个人品牌、社会地位及舆论风险', kw: '名望' },
+    ]
+  },
+  {
+    id: 'emotion',
+    name: '情感与人际',
+    subtitle: '社会关系类',
+    xuanRef: '阴阳交感',
+    color: '#4a5d6b',
+    types: [
+      { id: 11, name: '单身姻缘', desc: '测算正缘出现时机、桃花质量及社交圈拓展', kw: '姻缘' },
+      { id: 12, name: '恋爱发展', desc: '评估感情升温速度、沟通障碍及未来走向', kw: '恋爱' },
+      { id: 13, name: '婚姻婚配', desc: '测算双方契合度、婚后运势及家庭分工', kw: '婚配' },
+      { id: 14, name: '感情复合', desc: '评估前任态度、核心矛盾解决概率及重蹈覆辙风险', kw: '复合' },
+      { id: 15, name: '家庭和睦', desc: '测算代际关系、婆媳/岳婿矛盾及家运兴衰', kw: '家庭' },
+      { id: 16, name: '子女教育', desc: '评估子女性格特质、学业瓶颈及亲子沟通', kw: '育儿' },
+      { id: 17, name: '交友合作', desc: '测算朋友忠诚度、利益纠葛及背叛风险', kw: '交友' },
+      { id: 18, name: '贵人相助', desc: '评估关键节点能否获得外部助力及贵人方位', kw: '贵人' },
+      { id: 19, name: '小人防范', desc: '测算暗箭伤人、口舌是非及化解策略', kw: '防小' },
+      { id: 20, name: '人际破局', desc: '评估化解误会、修复关系的最佳时机', kw: '破局' },
+    ]
+  },
+  {
+    id: 'health',
+    name: '健康与平安',
+    subtitle: '身心安顿类',
+    xuanRef: '五行生克与星时数辞',
+    color: '#2d6a4f',
+    types: [
+      { id: 21, name: '疾病诊治', desc: '测算病因方向、求医方位及康复周期', kw: '求医' },
+      { id: 22, name: '身心调理', desc: '评估亚健康状态、心理抑郁风险及养生时机', kw: '调理' },
+      { id: 23, name: '出行平安', desc: '测算差旅风险、交通意外及出行吉日', kw: '出行' },
+      { id: 24, name: '居家安全', desc: '评估住宅风水、火灾隐患及失窃风险', kw: '居安' },
+      { id: 25, name: '孕产孕育', desc: '测算受孕时机、胎儿健康及生产顺利度', kw: '孕育' },
+      { id: 26, name: '意外灾祸', desc: '评估突发事故、官非诉讼及血光之灾', kw: '防灾' },
+      { id: 27, name: '精神压力', desc: '测算焦虑失眠、情绪崩溃及精神内耗', kw: '解压' },
+      { id: 28, name: '饮食起居', desc: '评估生活习惯对身体的隐性伤害及调整方向', kw: '饮居' },
+      { id: 29, name: '长寿延年', desc: '测算整体生命力走向及晚年生活质量', kw: '延年' },
+      { id: 30, name: '宠物/植物', desc: '评估饲养宠物的缘分、健康及走失风险', kw: '宠物' },
+    ]
+  },
+  {
+    id: 'fortune',
+    name: '抉择与运势',
+    subtitle: '时空趋势类',
+    xuanRef: '顺天应人',
+    color: '#8b6914',
+    types: [
+      { id: 31, name: '重大抉择', desc: '评估面临两难选择时的利弊得失及长远影响', kw: '抉择' },
+      { id: 32, name: '流年大运', desc: '测算年度整体运势起伏、吉凶月份分布', kw: '流年' },
+      { id: 33, name: '失物寻回', desc: '评估物品遗失方位、找回概率及线索', kw: '寻物' },
+      { id: 34, name: '诉讼官司', desc: '测算胜诉概率、和解时机及法律风险', kw: '诉讼' },
+      { id: 35, name: '搬迁变动', desc: '评估搬家/换城市的时机、新环境适应度', kw: '搬迁' },
+      { id: 36, name: '天时气象', desc: '测算特定日期的天气、自然灾害及节气影响', kw: '天时' },
+      { id: 37, name: '寻人访友', desc: '评估寻人方向、对方态度及相见时机', kw: '寻人' },
+      { id: 38, name: '时机把握', desc: '测算"动"与"静"的最佳节点，避免错失良机', kw: '时机' },
+      { id: 39, name: '因果复盘', desc: '评估过往决策的深层原因及经验教训', kw: '复盘' },
+      { id: 40, name: '人生破局', desc: '测算走出低谷、触底反弹的关键转折点', kw: '转机' },
+    ]
+  },
+];
+
+const COMPOSITE_PRESETS = [
+  { id: 41, name: '带病创业', typeIds: [3, 21], desc: '带病状态下创业的前景与风险评估' },
+  { id: 42, name: '异地复合', typeIds: [14, 35], desc: '异地恋感情复合的可能性与时机' },
+  { id: 43, name: '诉讼理财', typeIds: [34, 5], desc: '诉讼期间的财务安全与投资风险' },
+  { id: 44, name: '职场小人', typeIds: [7, 19], desc: '职场中小人作祟的识别与防范策略' },
+  { id: 45, name: '贵人创业', typeIds: [3, 18], desc: '借助贵人之力创业的时机与方向' },
+  { id: 46, name: '病中抉择', typeIds: [31, 21], desc: '疾病困扰中的重大决策利弊分析' },
+  { id: 47, name: '出行投资', typeIds: [5, 23], desc: '出行期间的投资时机与安全风险' },
+  { id: 48, name: '家庭搬迁', typeIds: [15, 35], desc: '家庭搬迁对家庭和睦的影响评估' },
+  { id: 49, name: '考学升迁', typeIds: [9, 2], desc: '通过学业提升实现职场升迁的策略' },
+  { id: 50, name: '孕期安宅', typeIds: [25, 24], desc: '孕期居家环境的安全与风水评估' },
+];
+
+// 类型ID → 类型对象的快速查找表
+const TYPE_MAP = {};
+CATEGORIES.forEach(cat => cat.types.forEach(t => TYPE_MAP[t.id] = { ...t, category: cat }));
+
+// ============================================================
+// 状态管理
+// ============================================================
+
+const state = {
+  mode: 'single',        // 'single' | 'composite'
+  selected: [],           // 已选类型ID数组
+  method: 'sticks',       // 'sticks' | 'coins'
+  question: '',
+  activeCategory: 'career',
+};
+
+function getMaxSelection() {
+  return state.mode === 'single' ? 1 : 2;
+}
+
+// ============================================================
+// 工具函数
+// ============================================================
+
+function getTypeById(id) {
+  return TYPE_MAP[id];
+}
+
+function getCompositeName(typeIds) {
+  if (typeIds.length !== 2) return '';
+  const [a, b] = typeIds;
+  const preset = COMPOSITE_PRESETS.find(p =>
+    (p.typeIds[0] === a && p.typeIds[1] === b) ||
+    (p.typeIds[0] === b && p.typeIds[1] === a)
+  );
+  if (preset) return preset.name;
+  const ta = TYPE_MAP[a];
+  const tb = TYPE_MAP[b];
+  return `${ta.kw} × ${tb.kw}`;
+}
+
+// ============================================================
+// 渲染函数
+// ============================================================
+
+function renderCategoryTabs() {
+  const container = document.getElementById('categoryTabs');
+  container.innerHTML = CATEGORIES.map(cat => `
+    <div class="cat-tab ${cat.id === state.activeCategory ? 'active' : ''}"
+         style="--cat-color: ${cat.color}"
+         onclick="selectCategory('${cat.id}')">
+      ${cat.name}
+      <span style="font-size:0.72rem; opacity:0.7">（${cat.subtitle}）</span>
+    </div>
+  `).join('');
+}
+
+function renderTypes() {
+  const cat = CATEGORIES.find(c => c.id === state.activeCategory);
+  const grid = document.getElementById('typeGrid');
+  grid.innerHTML = cat.types.map(t => {
+    const isSelected = state.selected.includes(t.id);
+    const isDisabled = !isSelected && state.selected.length >= getMaxSelection();
+    const order = isSelected ? state.selected.indexOf(t.id) + 1 : '';
+    return `
+      <div class="type-card ${isSelected ? 'selected' : ''} ${isDisabled ? 'disabled' : ''}"
+           onclick="${isDisabled ? '' : `toggleType(${t.id})`}">
+        <span class="tc-check">✓</span>
+        ${order ? `<span class="tc-order">${order}</span>` : ''}
+        <div class="tc-num">No.${String(t.id).padStart(2, '0')}</div>
+        <div class="tc-name">${t.name}</div>
+        <div class="tc-desc">${t.desc}</div>
+        <div class="tc-xuan">太玄对应：${cat.xuanRef}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderPresets() {
+  const grid = document.getElementById('presetGrid');
+  grid.innerHTML = COMPOSITE_PRESETS.map(p => {
+    const t1 = TYPE_MAP[p.typeIds[0]];
+    const t2 = TYPE_MAP[p.typeIds[1]];
+    const isSelected = state.selected.length === 2 &&
+      state.selected.includes(p.typeIds[0]) &&
+      state.selected.includes(p.typeIds[1]);
+    return `
+      <div class="preset-card ${isSelected ? 'selected' : ''}"
+           onclick="selectPreset(${p.typeIds[0]}, ${p.typeIds[1]})">
+        <div class="pc-num">${p.id}</div>
+        <div class="pc-body">
+          <div class="pc-name">${p.name}</div>
+          <div class="pc-desc">${p.desc}</div>
+          <div class="pc-types">${t1.name} + ${t2.name}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderReference() {
+  const container = document.getElementById('referenceTable');
+  let html = `<table><thead><tr>
+    <th>编号</th><th>分类</th><th>场景名称</th><th>说明</th><th>太玄对应</th>
+  </tr></thead><tbody>`;
+
+  CATEGORIES.forEach(cat => {
+    cat.types.forEach(t => {
+      html += `<tr>
+        <td>${String(t.id).padStart(2, '0')}</td>
+        <td>${cat.name}</td>
+        <td>${t.name}</td>
+        <td style="text-align:left; font-size:0.78rem; color:var(--muted)">${t.desc}</td>
+        <td style="font-size:0.78rem">${cat.xuanRef}</td>
+      </tr>`;
+    });
+  });
+
+  COMPOSITE_PRESETS.forEach(p => {
+    const t1 = TYPE_MAP[p.typeIds[0]];
+    const t2 = TYPE_MAP[p.typeIds[1]];
+    html += `<tr class="composite-row">
+      <td>${p.id}</td>
+      <td>复合</td>
+      <td>${p.name}</td>
+      <td style="text-align:left; font-size:0.78rem; color:var(--muted)">${p.desc}（${t1.name}+${t2.name}）</td>
+      <td style="font-size:0.78rem">阴阳交感</td>
+    </tr>`;
+  });
+
+  html += `</tbody></table>`;
+  container.innerHTML = html;
+}
+
+function updateSelectionBar() {
+  const modeEl = document.getElementById('sbMode');
+  modeEl.textContent = state.mode === 'single' ? '单项' : '复合';
+  modeEl.className = 'sb-mode' + (state.mode === 'composite' ? ' composite' : '');
+
+  const selEl = document.getElementById('sbSelections');
+  if (state.selected.length === 0) {
+    const max = getMaxSelection();
+    selEl.innerHTML = `<span class="sb-empty">请选择${max}个预测类型</span>`;
+  } else {
+    const chips = state.selected.map(id => {
+      const t = TYPE_MAP[id];
+      return `<span class="sb-chip">${t.name}</span>`;
+    }).join('');
+
+    let compositeChip = '';
+    if (state.mode === 'composite' && state.selected.length === 2) {
+      const name = getCompositeName(state.selected);
+      compositeChip = `<span class="sb-chip composite-name">${name}</span>`;
+    }
+
+    selEl.innerHTML = chips + compositeChip;
+  }
+
+  const startBtn = document.getElementById('sbStart');
+  startBtn.disabled = state.selected.length !== getMaxSelection();
+}
+
+// ============================================================
+// 事件处理
+// ============================================================
+
+function selectMode(mode) {
+  if (state.mode === mode) return;
+  state.mode = mode;
+  state.selected = [];
+
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === mode);
+  });
+
+  const compositeSection = document.getElementById('composite-section');
+  const compositeContainer = document.getElementById('compositePresetsContainer');
+  if (mode === 'composite') {
+    compositeSection.classList.remove('hidden');
+    compositeContainer.classList.remove('hidden');
+  } else {
+    compositeSection.classList.add('hidden');
+    compositeContainer.classList.add('hidden');
+  }
+
+  renderTypes();
+  updateSelectionBar();
+}
+
+function selectCategory(catId) {
+  state.activeCategory = catId;
+  renderCategoryTabs();
+  renderTypes();
+}
+
+function toggleType(id) {
+  const max = getMaxSelection();
+  const idx = state.selected.indexOf(id);
+
+  if (idx >= 0) {
+    state.selected.splice(idx, 1);
+  } else {
+    if (state.selected.length >= max) {
+      state.selected.shift();
+    }
+    state.selected.push(id);
+  }
+
+  renderTypes();
+  renderPresets();
+  updateSelectionBar();
+}
+
+function selectPreset(id1, id2) {
+  state.selected = [id1, id2];
+  renderTypes();
+  renderPresets();
+  updateSelectionBar();
+}
+
+function setMethod(method) {
+  state.method = method;
+  document.querySelectorAll('.method-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.method === method);
+  });
+  document.querySelectorAll('.sb-method-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.method === method);
+  });
+}
+
+// ============================================================
+// 起卦执行
+// ============================================================
+
+function executeDivination() {
+  const engine = window.TaixuanEngine;
+  if (!engine) {
+    alert('起卦引擎未加载，请确保 divination-engine.js 可用。');
+    return;
+  }
+
+  const max = getMaxSelection();
+  if (state.selected.length !== max) {
+    alert(`请先选择${max}个预测类型。`);
+    return;
+  }
+
+  const question = state.question.trim();
+  const seedStr = question || (state.selected.join(',') + '|' + Date.now());
+  const rng = engine.seededRNG(engine.seedFromString(seedStr));
+
+  const result = state.method === 'sticks'
+    ? engine.divineBySticks(rng)
+    : engine.divineByCoins(rng);
+
+  const fortune = engine.judgeFortune(result);
+  displayResults(result, fortune);
+}
+
+function displayResults(result, fortune) {
+  const { shou, zan, biao, fourFactors, meta } = result;
+  const section = document.getElementById('resultSection');
+
+  const isJi = fortune.level.includes('休') && !fortune.level.includes('咎');
+  const isXiong = fortune.level.includes('咎') && !fortune.level.includes('休');
+  const fortuneClass = isJi ? 'fortune-ji' : (isXiong ? 'fortune-xiong' : '');
+  const fortuneTagClass = isJi ? 'ji' : (isXiong ? 'xiong' : 'mid');
+
+  // 查找太玄经原文
+  let classicText = '';
+  if (typeof TAIXUAN_DATA !== 'undefined') {
+    const shouData = TAIXUAN_DATA.find(d => d.index === shou.index);
+    if (shouData) {
+      classicText += `<strong>首辞：</strong>${shouData.ci || '（无）'}<br>`;
+      if (shouData.zan && shouData.zan.length >= zan.position) {
+        const zanData = shouData.zan.find(z => z.pos === zan.position);
+        if (zanData) {
+          classicText += `<strong>赞辞：</strong>${zanData.ci || '（无）'}<br>`;
+          classicText += `<strong>测辞：</strong>${zanData.ce || '（无）'}`;
+        } else {
+          classicText += '<strong>赞辞：</strong>（数据待补）';
+        }
+      } else {
+        classicText += '<strong>赞辞：</strong>（数据待补）';
+      }
+    }
+  }
+
+  // 类型解读
+  const typeInterpretations = state.selected.map(id => {
+    const t = TYPE_MAP[id];
+    const jiText = fortune.level === '大休'
+      ? '大吉之象，万事顺遂，宜速行不可迟疑'
+      : fortune.level.includes('休')
+        ? '吉象显现，时机有利，可顺势而为'
+        : fortune.level === '大咎'
+          ? '大凶之象，宜守不宜进，凡事慎之'
+          : '吉凶参半，宜审时度势，择机而动';
+    return `<strong>${t.name}</strong>：${jiText}。${t.desc}。`;
+  }).join('<br>');
+
+  // 复合场景名
+  let compositeInfo = '';
+  if (state.mode === 'composite' && state.selected.length === 2) {
+    const name = getCompositeName(state.selected);
+    compositeInfo = `<div class="result-card">
+      <div class="rc-label">复合场景</div>
+      <div class="rc-value big" style="color:var(--accent4)">${name}</div>
+    </div>`;
+  }
+
+  // 六揲详情
+  let roundsDetail = '';
+  if (meta && meta.rounds) {
+    roundsDetail = meta.rounds.map(r => {
+      let info = `${r.role}: ${r.value}`;
+      if (r.coins) {
+        info += ` (${r.coins.map(c => c ? '阳' : '阴').join('·')})`;
+      }
+      return info;
+    }).join(' → ');
+  }
+
+  section.innerHTML = `
+    <div class="fade-in">
+    <h3 style="color:var(--accent); margin-bottom:0.8rem">起卦结果</h3>
+
+    <div class="result-card">
+      <div class="rc-label">起卦信息</div>
+      <div class="rc-value">
+        方法：${meta.method === 'sticks' ? '揲蓍法' : '硬币法'} ｜
+        模式：${state.mode === 'single' ? '单项占测' : '复合占测'} ｜
+        时间：${new Date().toLocaleString('zh-CN')}
+        ${state.question ? `｜ 问题：${state.question}` : ''}
+      </div>
+      ${roundsDetail ? `<div class="rc-value" style="font-size:0.82rem; color:var(--muted); margin-top:0.3rem; font-family:var(--font-mono)">${roundsDetail}</div>` : ''}
+    </div>
+
+    ${compositeInfo}
+
+    <div class="result-grid">
+      <div class="result-card ${fortuneClass}">
+        <div class="rc-label">太玄首（卦象）</div>
+        <div class="rc-value big">${shou.name}</div>
+        <div class="rc-value" style="font-size:0.85rem; color:var(--muted)">
+          第${shou.index}首 ｜ ${shou.xuan} ｜ ${shou.yinYang}首<br>
+          方${shou.fang}-州${shou.zhou}-部${shou.bu}-家${shou.jia}
+        </div>
+      </div>
+
+      <div class="result-card ${fortuneClass}">
+        <div class="rc-label">太玄赞（爻象）</div>
+        <div class="rc-value big">${zan.name}</div>
+        <div class="rc-value" style="font-size:0.85rem; color:var(--muted)">
+          第${zan.position}赞 ｜ 五行：${zan.wuxing} ｜ ${zan.dayNight}<br>
+          休咎：<strong style="color:${zan.xiuJiu === '休' ? 'var(--accent3)' : 'var(--accent)'}">${zan.xiuJiu}</strong>
+          ｜ 全局第${zan.globalIndex}赞
+        </div>
+      </div>
+    </div>
+
+    <div class="result-card">
+      <div class="rc-label">表经纬</div>
+      <div class="rc-value">${biao.type}（${biao.members.join('、')}）</div>
+      <div class="rc-value" style="font-size:0.82rem; color:var(--muted)">
+        旦筮用经（1、5、7） ｜ 夕筮用纬（3、4、8） ｜ 中筮用杂（2、6、9）
+      </div>
+    </div>
+
+    <div class="result-card">
+      <div class="rc-label">四占要素</div>
+      <div class="rc-value">
+        星：${fourFactors.星} ｜ 时：${fourFactors.时} ｜ 数：${fourFactors.数} ｜ 辞：${fourFactors.辞}
+      </div>
+    </div>
+
+    <div class="result-card ${fortuneClass}">
+      <div class="rc-label">吉凶判断</div>
+      <div class="rc-value">
+        <span class="fortune-tag ${fortuneTagClass}">${fortune.level}</span>
+        <span style="margin-left:0.5rem; font-size:0.85rem; color:var(--muted)">${fortune.desc}</span>
+      </div>
+      <div class="rc-value" style="font-size:0.82rem; color:var(--muted); margin-top:0.3rem">
+        从违模式：${fortune.pattern}<br>
+        当前赞：${fortune.currentZanXiuJiu}
+      </div>
+    </div>
+
+    ${classicText ? `
+    <div class="result-card">
+      <div class="rc-label">太玄经原文</div>
+      <div class="rc-classic">${classicText}</div>
+    </div>` : ''}
+
+    <div class="result-card">
+      <div class="rc-label">类型解读</div>
+      <div class="rc-value" style="font-size:0.9rem; line-height:1.8">${typeInterpretations}</div>
+    </div>
+
+    <div class="note" style="margin-top:1rem">
+      <strong>解读说明：</strong>
+      以上卦象基于《太玄经》"方州部家"体系推演而成。首（卦象）代表总体趋势，赞（爻象）代表具体处境。
+      逢昼为休（吉），逢夜为咎（凶）。三从三违之判断基于当前赞所在表（经/纬/杂）的从违组合。
+      建议结合太玄经<a href="annotations.html" style="color:var(--accent2)">原文注释</a>深入理解第${shou.index}首"${shou.name}"的完整含义。
+    </div>
+    </div>
+  `;
+
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ============================================================
+// 初始化
+// ============================================================
+
+renderCategoryTabs();
+renderTypes();
+renderPresets();
+renderReference();
+updateSelectionBar();
+</script>
+
+</body>
+</html>

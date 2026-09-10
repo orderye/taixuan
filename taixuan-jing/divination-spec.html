@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>太玄经卜卦程序化规格文档</title>
+  <style>
+    @font-face {
+      font-family: 'Crimson';
+      src: url('./_shared/fonts/CrimsonPro-Regular.ttf') format('truetype');
+      font-weight: 400;
+    }
+    @font-face {
+      font-family: 'Crimson';
+      src: url('./_shared/fonts/CrimsonPro-Bold.ttf') format('truetype');
+      font-weight: 700;
+    }
+    @font-face {
+      font-family: 'Young';
+      src: url('./_shared/fonts/YoungSerif-Regular.ttf') format('truetype');
+      font-weight: 400;
+    }
+    @font-face {
+      font-family: 'JetBrains';
+      src: url('./_shared/fonts/JetBrainsMono-Regular.ttf') format('truetype');
+      font-weight: 400;
+    }
+
+    :root {
+      --bg: #f7f1e5;
+      --bg2: #fbf7ec;
+      --ink: #1a1815;
+      --muted: #6b6559;
+      --rule: #d4c7b0;
+      --accent: #8b1a1a;
+      --accent2: #4a5d6b;
+      --accent3: #2d6a4f;
+      --font: 'Crimson', 'Noto Serif SC', 'STSong', 'SimSun', serif;
+      --font-mono: 'JetBrains', 'Noto Sans Mono SC', monospace;
+      --max: 960px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.8;
+    }
+
+    .cover {
+      background: linear-gradient(180deg, #2a1f14 0%, #3d2e1c 60%, var(--bg) 100%);
+      color: #f7f1e5;
+      padding: 4rem 2rem 3rem;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .cover h1 {
+      font-family: 'Young', 'Noto Serif SC', serif;
+      font-size: 2.4rem;
+      font-weight: 400;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.3rem;
+    }
+    .cover .subtitle {
+      font-size: 1rem;
+      color: #c8bca8;
+      font-style: italic;
+    }
+    .cover .meta {
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      color: #9a8e7a;
+    }
+
+    article.page {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 1.5rem 4rem;
+    }
+
+    h2 {
+      font-family: 'Young', 'Noto Serif SC', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 0.3rem;
+      margin: 2.5rem 0 1rem;
+    }
+    h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--accent2);
+      margin: 1.5rem 0 0.5rem;
+    }
+    h4 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--accent3);
+      margin: 1rem 0 0.3rem;
+    }
+    p { margin-bottom: 0.6rem; }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.85em;
+      background: rgba(139,26,26,0.06);
+      padding: 0.1em 0.35em;
+      border-radius: 3px;
+      color: var(--accent);
+    }
+
+    pre {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      background: #1e1c1a;
+      color: #e8e0d0;
+      padding: 1rem 1.2rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      margin: 0.8rem 0;
+    }
+    pre .comment { color: #6b8f6b; }
+    pre .keyword { color: #c98a5a; }
+    pre .string { color: #a5b8d0; }
+    pre .number { color: #d4a0a0; }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin: 1rem 0;
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    th, td {
+      padding: 0.4rem 0.6rem;
+      border: 1px solid var(--rule);
+      text-align: center;
+    }
+    th {
+      background: var(--bg2);
+      font-weight: 700;
+      color: var(--accent);
+    }
+    tr:nth-child(even) { background: var(--bg2); }
+
+    .flow-diagram {
+      background: var(--bg2);
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      padding: 1.5rem;
+      margin: 1rem 0;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.8;
+      overflow-x: auto;
+    }
+    .flow-diagram .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.8rem;
+      margin-bottom: 0.3rem;
+    }
+    .flow-diagram .step-num {
+      flex-shrink: 0;
+      width: 1.8rem;
+      height: 1.8rem;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .flow-diagram .step-num.alt {
+      background: var(--accent2);
+    }
+    .flow-diagram .step-num.alt2 {
+      background: var(--accent3);
+    }
+    .flow-diagram .arrow {
+      margin-left: 2.6rem;
+      color: var(--muted);
+      margin-bottom: 0.3rem;
+    }
+
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      padding: 1rem 1.2rem;
+      margin: 1rem 0;
+    }
+    .card.highlight {
+      border-left: 4px solid var(--accent);
+    }
+    .card .label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .formula {
+      background: #2a2520;
+      color: #e8d8c0;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      padding: 0.6rem 1rem;
+      border-radius: 4px;
+      text-align: center;
+      margin: 0.6rem 0;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      padding: 0.1rem 0.5rem;
+      border-radius: 3px;
+      font-weight: 700;
+      vertical-align: middle;
+    }
+    .badge-stick { background: #8b1a1a; color: #fff; }
+    .badge-coin { background: #4a5d6b; color: #fff; }
+
+    .toc {
+      background: var(--bg2);
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      padding: 1rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .toc ol { padding-left: 1.2rem; }
+    .toc a {
+      color: var(--accent2);
+      text-decoration: none;
+    }
+    .toc a:hover { text-decoration: underline; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    @media (max-width: 640px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+
+    .note {
+      background: rgba(45,106,79,0.08);
+      border-left: 3px solid var(--accent3);
+      padding: 0.6rem 1rem;
+      border-radius: 0 4px 4px 0;
+      margin: 0.8rem 0;
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .center { text-align: center; }
+  </style>
+</head>
+<body>
+
+<div class="cover">
+  <h1>太玄经卜卦程序化规格</h1>
+  <div class="subtitle">Divination Programmable Specification</div>
+  <div class="meta">基于《太玄经》扬雄原著 · 司马光集注 · 黄宗羲太玄蓍法<br>2026-09-09</div>
+</div>
+
+<article class="page">
+
+<!-- 目录 -->
+<div class="toc">
+  <h3 style="margin-top:0">目录</h3>
+  <ol>
+    <li><a href="#overview">总体架构</a></li>
+    <li><a href="#data-structure">数据结构定义</a></li>
+    <li><a href="#stick-method">揲蓍法（签策法）完整流程</a></li>
+    <li><a href="#coin-method">硬币法完整流程</a></li>
+    <li><a href="#shou-calc">首序号计算公式</a></li>
+    <li><a href="#zan-calc">赞位计算与昼夜规则</a></li>
+    <li><a href="#interpretation">四占解读体系</a></li>
+    <li><a href="#api">引擎 API 参考</a></li>
+    <li><a href="#usage">使用示例</a></li>
+  </ol>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="overview">一、总体架构</h2>
+
+<p>太玄经卜卦系统的核心是一个 <strong>三进制</strong> 体系，与《易经》的二进制（阴阳两爻）不同，太玄经使用 <strong>一、二、三</strong> 三种基本画数。</p>
+
+<div class="formula">
+  3<sup>4</sup> = 81 首 &nbsp;·&nbsp; 每首 9 赞 &nbsp;·&nbsp; 共 729 赞
+</div>
+
+<p>卜卦分为两阶段，合计 <strong>六揲</strong>（六次操作），对应经文"六算而策道穷也"：</p>
+
+<div class="grid-2">
+  <div class="card highlight">
+    <div class="label">阶段一：四揲定首</div>
+    <p style="margin-top:0.4rem">
+      <strong>方</strong>（第1揲）→ <strong>州</strong>（第2揲）→ <strong>部</strong>（第3揲）→ <strong>家</strong>（第4揲）<br>
+      每揲得 1-3，四位组合确定 81 首中之一
+    </p>
+  </div>
+  <div class="card highlight">
+    <div class="label">阶段二：两揲定赞</div>
+    <p style="margin-top:0.4rem">
+      <strong>赞高位</strong>（第5揲）→ <strong>赞低位</strong>（第6揲）<br>
+      (高位-1)×3 + 低位 = 赞位（1-9）<br>
+      确定该首下九赞中的具体位置
+    </p>
+  </div>
+</div>
+
+<h3>文件结构</h3>
+
+<pre><span class="comment">taixuan-jing/
+├── divination-engine.js    # 核心引擎：算法+数据结构
+├── divination-data.js      # 81首数据：首辞+赞辞+测辞
+├── divination-spec.html    # 本文档：程序化规格
+├── taixuan-jing.html       # 卦象整理页面
+└── _shared/
+    └── js/                  # 共享资源</span></pre>
+
+<!-- ============================================================ -->
+<h2 id="data-structure">二、数据结构定义</h2>
+
+<h3>2.1 首结构（Shou）</h3>
+
+<pre><span class="keyword">interface</span> Shou {
+  index: <span class="keyword">number</span>       <span class="comment">// 首序号 1-81</span>
+  name: <span class="keyword">string</span>        <span class="comment">// 首名（中、周、礥...）</span>
+  fang: <span class="keyword">number</span>        <span class="comment">// 方位 1=天玄 2=地玄 3=人玄</span>
+  zhou: <span class="keyword">number</span>        <span class="comment">// 州位 1-3</span>
+  bu: <span class="keyword">number</span>          <span class="comment">// 部位 1-3</span>
+  jia: <span class="keyword">number</span>         <span class="comment">// 家位 1-3</span>
+  yinYang: <span class="keyword">string</span>     <span class="comment">// "阳"（奇数首）或 "阴"（偶数首）</span>
+  ci: <span class="keyword">string</span>          <span class="comment">// 首辞</span>
+}</pre>
+
+<h3>2.2 赞结构（Zan）</h3>
+
+<pre><span class="keyword">interface</span> Zan {
+  pos: <span class="keyword">number</span>          <span class="comment">// 赞位 1-9</span>
+  name: <span class="keyword">string</span>         <span class="comment">// 赞名（初一~上九）</span>
+  category: <span class="keyword">string</span>      <span class="comment">// "思" | "福" | "祸"</span>
+  level: <span class="keyword">string</span>        <span class="comment">// "下" | "中" | "上"</span>
+  wuxing: <span class="keyword">string</span>       <span class="comment">// 五行（水/火/木/金/土）</span>
+  dayNight: <span class="keyword">string</span>     <span class="comment">// "昼"（休/吉）或 "夜"（咎/凶）</span>
+  ci: <span class="keyword">string</span>           <span class="comment">// 赞辞</span>
+  ce: <span class="keyword">string</span>           <span class="comment">// 测辞</span>
+}</pre>
+
+<h3>2.3 卜卦结果（DivinationResult）</h3>
+
+<pre><span class="keyword">interface</span> DivinationResult {
+  shou: {
+    index: <span class="keyword">number</span>      <span class="comment">// 首序号 1-81</span>
+    name: <span class="keyword">string</span>       <span class="comment">// 首名</span>
+    position: <span class="keyword">string</span>    <span class="comment">// "方-州-部-家" 如 "1-2-3-1"</span>
+    yinYang: <span class="keyword">string</span>    <span class="comment">// 阳或阴</span>
+  }
+  zan: {
+    position: <span class="keyword">number</span>   <span class="comment">// 赞位 1-9</span>
+    name: <span class="keyword">string</span>      <span class="comment">// 初一~上九</span>
+    dayNight: <span class="keyword">string</span>   <span class="comment">// 昼或夜</span>
+    xiuJiu: <span class="keyword">string</span>    <span class="comment">// 休（吉）或咎（凶）</span>
+    wuxing: <span class="keyword">string</span>    <span class="comment">// 五行</span>
+  }
+  biao: {
+    type: <span class="keyword">string</span>       <span class="comment">// 经 | 纬 | 杂</span>
+  }
+  fortune: {
+    pattern: <span class="keyword">string</span>   <span class="comment">// 如 "一从二从三从"</span>
+    level: <span class="keyword">string</span>      <span class="comment">// 大休 | 始中休终咎 | ...</span>
+    desc: <span class="keyword">string</span>       <span class="comment">// 吉凶描述</span>
+  }
+  meta: {
+    method: <span class="keyword">string</span>     <span class="comment">// "sticks" 或 "coins"</span>
+    rounds: [...]         <span class="comment">// 六轮详细数据</span>
+  }
+}</pre>
+
+<!-- ============================================================ -->
+<h2 id="stick-method">三、揲蓍法（签策法）完整流程</h2>
+
+<p><span class="badge badge-stick">揲蓍法</span> 使用33根签策模拟传统蓍草占卜，是太玄经最正统的卜卦方法。</p>
+
+<h3>3.1 单次揲蓍算法（singleYang）</h3>
+
+<p>每次揲蓍从33策出发，经过挂一、初揲、再揲三步操作，最终得到 <strong>7→1, 8→2, 9→3</strong> 的映射。</p>
+
+<div class="flow-diagram">
+  <div class="step"><div class="step-num">1</div><div>
+    <strong>别一</strong>：从33策取1策挂于左手小指<br>
+    剩余：33 - 1 = <strong>32策</strong>
+  </div></div>
+
+  <div class="step"><div class="step-num alt">2</div><div>
+    <strong>中分其余</strong>：将32策随机分为两组（左组L + 右组R = 32）
+  </div></div>
+
+  <div class="step"><div class="step-num alt">3</div><div>
+    <strong>以三搜之</strong>（初揲）：两组各除以3取余<br>
+    余数规则：0记为3，即余数 ∈ {1,2,3}<br>
+    左余 = L mod 3（0→3），右余 = R mod 3（0→3）<br>
+    合计 = 左余 + 右余 ∈ {<strong>2, 5</strong>}（因 32 mod 3 = 2）
+  </div></div>
+
+  <div class="step"><div class="step-num alt">4</div><div>
+    <strong>并余于艻</strong>：移除余数策<br>
+    剩余 = 32 - 合计 → <strong>30策</strong>（余2时）或 <strong>27策</strong>（余5时）
+  </div></div>
+
+  <div class="step"><div class="step-num alt2">5</div><div>
+    <strong>再揲</strong>：剩余策再分两组，各除以3取余<br>
+    合计 ∈ {<strong>3, 6</strong>}（因 30和27均被3整除，余0记3）<br>
+    移除后剩余 = 30-3=<strong>27</strong> 或 30-6=<strong>24</strong> 或 27-3=<strong>24</strong> 或 27-6=<strong>21</strong>
+  </div></div>
+
+  <div class="step"><div class="step-num">6</div><div>
+    <strong>数其余</strong>：剩余策 ÷ 3<br>
+    27 ÷ 3 = <strong>9</strong> → 值 = <strong>3</strong><br>
+    24 ÷ 3 = <strong>8</strong> → 值 = <strong>2</strong><br>
+    21 ÷ 3 = <strong>7</strong> → 值 = <strong>1</strong>
+  </div></div>
+</div>
+
+<h4>四条可能路径</h4>
+
+<table>
+  <tr><th>路径</th><th>挂一</th><th>初揲余</th><th>再揲余</th><th>剩余</th><th>÷3</th><th>映射值</th></tr>
+  <tr><td>A</td><td>→32</td><td>2</td><td>3</td><td>27</td><td>9</td><td><strong>3</strong></td></tr>
+  <tr><td>B</td><td>→32</td><td>2</td><td>6</td><td>24</td><td>8</td><td><strong>2</strong></td></tr>
+  <tr><td>C</td><td>→32</td><td>5</td><td>3</td><td>24</td><td>8</td><td><strong>2</strong></td></tr>
+  <tr><td>D</td><td>→32</td><td>5</td><td>6</td><td>21</td><td>7</td><td><strong>1</strong></td></tr>
+</table>
+
+<h3>3.2 六揲完整流程</h3>
+
+<div class="flow-diagram">
+  <div class="step"><div class="step-num">1</div><div><strong>第一揲</strong> → 方位值 (1-3) → <strong>方</strong></div></div>
+  <div class="arrow">↓</div>
+  <div class="step"><div class="step-num">2</div><div><strong>第二揲</strong> → 州位值 (1-3) → <strong>州</strong></div></div>
+  <div class="arrow">↓</div>
+  <div class="step"><div class="step-num">3</div><div><strong>第三揲</strong> → 部位值 (1-3) → <strong>部</strong></div></div>
+  <div class="arrow">↓</div>
+  <div class="step"><div class="step-num">4</div><div><strong>第四揲</strong> → 家位值 (1-3) → <strong>家</strong></div></div>
+  <div class="arrow">↓ → 计算首序号 → 查81首名</div>
+  <div class="step"><div class="step-num alt">5</div><div><strong>第五揲</strong> → 赞高位 (1-3) → <strong>赞高</strong></div></div>
+  <div class="arrow">↓</div>
+  <div class="step"><div class="step-num alt">6</div><div><strong>第六揲</strong> → 赞低位 (1-3) → <strong>赞低</strong></div></div>
+  <div class="arrow">↓ → 赞位 = (赞高-1)×3 + 赞低 (1-9)</div>
+  <div class="step"><div class="step-num alt2">✓</div><div><strong>完成</strong>：首名 + 赞位 + 昼夜 + 休咎 + 吉凶</div></div>
+</div>
+
+<h3>3.3 揲蓍法伪代码</h3>
+
+<pre><span class="keyword">function</span> divineBySticks(rng = Math.random):
+    <span class="comment">// 阶段一：四揲定首</span>
+    fang = singleYang(rng)      <span class="comment">// 方 1-3</span>
+    zhou = singleYang(rng)      <span class="comment">// 州 1-3</span>
+    bu   = singleYang(rng)      <span class="comment">// 部 1-3</span>
+    jia  = singleYang(rng)      <span class="comment">// 家 1-3</span>
+
+    shouIdx = shouIndex(fang, zhou, bu, jia)
+
+    <span class="comment">// 阶段二：两揲定赞</span>
+    zanHigh = singleYang(rng)   <span class="comment">// 赞高位 1-3</span>
+    zanLow  = singleYang(rng)   <span class="comment">// 赞低位 1-3</span>
+    zanPos  = (zanHigh - <span class="number">1</span>) * <span class="number">3</span> + zanLow  <span class="comment">// 1-9</span>
+
+    <span class="keyword">return</span> buildResult(shouIdx, zanPos, { method: <span class="string">"sticks"</span> })
+
+
+<span class="keyword">function</span> singleYang(rng):
+    sticks = <span class="number">33</span>
+    sticks -= <span class="number">1</span>                           <span class="comment">// 别一：挂1策</span>
+
+    <span class="comment">// 初揲</span>
+    left  = randomInt(<span class="number">1</span>, sticks - <span class="number">1</span>, rng)
+    right = sticks - left
+    remL  = mod3special(left)    <span class="comment">// 0→3, 否则原值</span>
+    remR  = mod3special(right)
+    sticks -= (remL + remR)     <span class="comment">// 移除余数（2或5）</span>
+
+    <span class="comment">// 再揲</span>
+    left  = randomInt(<span class="number">1</span>, sticks - <span class="number">1</span>, rng)
+    right = sticks - left
+    remL  = mod3special(left)
+    remR  = mod3special(right)
+    sticks -= (remL + remR)     <span class="comment">// 移除余数（3或6）</span>
+
+    <span class="comment">// 数其余</span>
+    result = sticks / <span class="number">3</span>            <span class="comment">// 7, 8, 或 9</span>
+    <span class="keyword">return</span> result == <span class="number">7</span> ? <span class="number">1</span> : result == <span class="number">8</span> ? <span class="number">2</span> : <span class="number">3</span></pre>
+
+<!-- ============================================================ -->
+<h2 id="coin-method">四、硬币法完整流程</h2>
+
+<p><span class="badge badge-coin">硬币法</span> 使用3枚硬币，掷6轮（每轮得1-3），结构与揲蓍法完全一致。</p>
+
+<h3>4.1 单次掷币映射规则</h3>
+
+<p>每枚硬币：正面(阳)记1，背面(阴)记0。三枚合计 yangCount ∈ {0,1,2,3}。</p>
+
+<table>
+  <tr><th>阳数</th><th>组合</th><th>概率</th><th>映射值</th><th>说明</th></tr>
+  <tr><td>0</td><td>阴阴阴</td><td>1/8</td><td><strong>1</strong></td><td>全阴，取低位</td></tr>
+  <tr><td>1</td><td>阳阴阴/阴阳阴/阴阴阳</td><td>3/8</td><td><strong>1</strong></td><td>一阳二阴</td></tr>
+  <tr><td>2</td><td>阳阳阴/阳阴阳/阴阳阳</td><td>3/8</td><td><strong>2</strong></td><td>二阳一阴</td></tr>
+  <tr><td>3</td><td>阳阳阳</td><td>1/8</td><td><strong>3</strong></td><td>全阳，取高位</td></tr>
+</table>
+
+<div class="note">
+  <strong>映射设计说明：</strong>0-1阳→值1，2阳→值2，3阳→值3。概率分布 P(1)=4/8, P(2)=3/8, P(3)=1/8，近似揲蓍法的路径分布。
+</div>
+
+<h3>4.2 硬币法六轮流程</h3>
+
+<div class="flow-diagram">
+  <div class="step"><div class="step-num">1</div><div><strong>第一轮</strong>（3币）→ 值1-3 → <strong>方</strong></div></div>
+  <div class="step"><div class="step-num">2</div><div><strong>第二轮</strong>（3币）→ 值1-3 → <strong>州</strong></div></div>
+  <div class="step"><div class="step-num">3</div><div><strong>第三轮</strong>（3币）→ 值1-3 → <strong>部</strong></div></div>
+  <div class="step"><div class="step-num">4</div><div><strong>第四轮</strong>（3币）→ 值1-3 → <strong>家</strong></div></div>
+  <div class="arrow">↓ → 计算首序号 → 查81首名</div>
+  <div class="step"><div class="step-num alt">5</div><div><strong>第五轮</strong>（3币）→ 值1-3 → <strong>赞高</strong></div></div>
+  <div class="step"><div class="step-num alt">6</div><div><strong>第六轮</strong>（3币）→ 值1-3 → <strong>赞低</strong></div></div>
+  <div class="arrow">↓ → 赞位 = (赞高-1)×3 + 赞低</div>
+  <div class="step"><div class="step-num alt2">✓</div><div><strong>完成</strong>：共掷18枚硬币 → 首名 + 赞位 + 吉凶</div></div>
+</div>
+
+<h3>4.3 硬币法伪代码</h3>
+
+<pre><span class="keyword">function</span> divineByCoins(rng = Math.random):
+    <span class="comment">// 六轮掷币，每轮3枚硬币</span>
+    r1 = singleCoinToss(rng)    <span class="comment">// → {value, coins, yangCount}</span>
+    r2 = singleCoinToss(rng)
+    r3 = singleCoinToss(rng)
+    r4 = singleCoinToss(rng)
+    r5 = singleCoinToss(rng)
+    r6 = singleCoinToss(rng)
+
+    shouIdx = shouIndex(r1.value, r2.value, r3.value, r4.value)
+    zanPos  = (r5.value - <span class="number">1</span>) * <span class="number">3</span> + r6.value
+
+    <span class="keyword">return</span> buildResult(shouIdx, zanPos, { method: <span class="string">"coins"</span> })
+
+
+<span class="keyword">function</span> singleCoinToss(rng):
+    coins  = [randBool(rng), randBool(rng), randBool(rng)]
+    yang   = countTrue(coins)        <span class="comment">// 0-3</span>
+    value  = yang &lt;= <span class="number">1</span> ? <span class="number">1</span> : yang == <span class="number">2</span> ? <span class="number">2</span> : <span class="number">3</span>
+    <span class="keyword">return</span> { value, coins, yangCount: yang }</pre>
+
+<!-- ============================================================ -->
+<h2 id="shou-calc">五、首序号计算公式</h2>
+
+<h3>5.1 正向计算（方州部家 → 首序号）</h3>
+
+<p>来自《太玄数》"推玄算"原文：</p>
+
+<div class="formula">
+  首序号 = (方-1)×27 + (州-1)×9 + (部-1)×3 + 家
+</div>
+
+<h4>各位权重表</h4>
+
+<table>
+  <tr><th>位</th><th>值1时</th><th>值2时</th><th>值3时</th><th>原文</th></tr>
+  <tr><td><strong>家</strong></td><td>+1</td><td>+2</td><td>+3</td><td>"家一置一，二置二，三置三"</td></tr>
+  <tr><td><strong>部</strong></td><td>+0</td><td>+3</td><td>+6</td><td>"部一勿增，二增三，三增六"</td></tr>
+  <tr><td><strong>州</strong></td><td>+0</td><td>+9</td><td>+18</td><td>"州一勿增，二增九，三增十八"</td></tr>
+  <tr><td><strong>方</strong></td><td>+0</td><td>+27</td><td>+54</td><td>"方一勿增，二增二十七，三增五十四"</td></tr>
+</table>
+
+<h4>验证示例</h4>
+
+<div class="card">
+  <p><strong>中首</strong>（首1）：方1州1部1家1 → 0+0+0+1 = <strong>1</strong> ✓</p>
+  <p><strong>乐首</strong>（首25）：方1州3部2家3 → 0+18+3+3 = <strong>24</strong>（去中之数），即第25首 ✓</p>
+  <p><strong>养首</strong>（首81）：方3州3部3家3 → 54+18+6+3 = <strong>81</strong> ✓</p>
+</div>
+
+<h3>5.2 逆向计算（首序号 → 方州部家）</h3>
+
+<pre>fang = floor((index - <span class="number">1</span>) / <span class="number">27</span>) + <span class="number">1</span>
+zhou = floor((index - <span class="number">1</span>) % <span class="number">27</span> / <span class="number">9</span>) + <span class="number">1</span>
+bu   = floor((index - <span class="number">1</span>) % <span class="number">9</span>  / <span class="number">3</span>) + <span class="number">1</span>
+jia  = (index - <span class="number">1</span>) % <span class="number">3</span> + <span class="number">1</span></pre>
+
+<h3>5.3 三玄与九天对应</h3>
+
+<table>
+  <tr><th>方</th><th>三玄</th><th>首范围</th><th>州</th><th>九天</th></tr>
+  <tr><td>1</td><td>天玄</td><td>1-27</td><td>1</td><td>中天</td></tr>
+  <tr><td>1</td><td>天玄</td><td>1-27</td><td>2</td><td>羡天</td></tr>
+  <tr><td>1</td><td>天玄</td><td>1-27</td><td>3</td><td>从天</td></tr>
+  <tr><td>2</td><td>地玄</td><td>28-54</td><td>4</td><td>更天</td></tr>
+  <tr><td>2</td><td>地玄</td><td>28-54</td><td>5</td><td>睟天</td></tr>
+  <tr><td>2</td><td>地玄</td><td>28-54</td><td>6</td><td>廓天</td></tr>
+  <tr><td>3</td><td>人玄</td><td>55-81</td><td>7</td><td>减天</td></tr>
+  <tr><td>3</td><td>人玄</td><td>55-81</td><td>8</td><td>沈天</td></tr>
+  <tr><td>3</td><td>人玄</td><td>55-81</td><td>9</td><td>成天</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2 id="zan-calc">六、赞位计算与昼夜规则</h2>
+
+<h3>6.1 赞位计算</h3>
+
+<div class="formula">
+  赞位 = (赞高位 - 1) × 3 + 赞低位 &nbsp;&nbsp;（范围 1-9）<br>
+  赞全局序号 = (首序号 - 1) × 9 + 赞位 &nbsp;&nbsp;（范围 1-729）
+</div>
+
+<h3>6.2 九赞位置定义</h3>
+
+<table>
+  <tr><th>赞位</th><th>名称</th><th>类别</th><th>层级</th><th>五行</th></tr>
+  <tr><td>1</td><td>初一</td><td>思</td><td>下（思内）</td><td>水</td></tr>
+  <tr><td>2</td><td>次二</td><td>思</td><td>中（思中）</td><td>火</td></tr>
+  <tr><td>3</td><td>次三</td><td>思</td><td>上（思外）</td><td>木</td></tr>
+  <tr><td>4</td><td>次四</td><td>福</td><td>下（福小）</td><td>金</td></tr>
+  <tr><td>5</td><td>次五</td><td>福</td><td>中（福中）</td><td>土</td></tr>
+  <tr><td>6</td><td>次六</td><td>福</td><td>上（福大）</td><td>水</td></tr>
+  <tr><td>7</td><td>次七</td><td>祸</td><td>下（祸生）</td><td>火</td></tr>
+  <tr><td>8</td><td>次八</td><td>祸</td><td>中（祸中）</td><td>木</td></tr>
+  <tr><td>9</td><td>上九</td><td>祸</td><td>上（祸极）</td><td>金</td></tr>
+</table>
+
+<h3>6.3 昼夜规则</h3>
+
+<p>经文："以昼夜别其休咎焉"——逢昼为休（吉），逢夜为咎（凶）。</p>
+
+<table>
+  <tr><th>首类型</th><th>昼赞（吉）</th><th>夜赞（凶）</th><th>规则</th></tr>
+  <tr><td><strong>阳首</strong>（奇数序号）</td><td>1,3,5,7,9</td><td>2,4,6,8</td><td>阳首以奇赞为昼</td></tr>
+  <tr><td><strong>阴首</strong>（偶数序号）</td><td>2,4,6,8</td><td>1,3,5,7,9</td><td>阴首以偶赞为昼</td></tr>
+</table>
+
+<div class="note">
+  <strong>判定逻辑：</strong> 首序号为奇数→阳首，赞位为奇→昼(吉)，赞位为偶→夜(凶)；首序号为偶数→阴首，赞位为偶→昼(吉)，赞位为奇→夜(凶)。
+</div>
+
+<pre><span class="keyword">function</span> zanDayNight(shouIdx, zanPos):
+    yinYang = shouIdx % <span class="number">2</span> == <span class="number">1</span> ? <span class="string">"阳"</span> : <span class="string">"阴"</span>
+    isOdd   = zanPos % <span class="number">2</span> == <span class="number">1</span>
+    <span class="keyword">if</span> yinYang == <span class="string">"阳"</span>:
+        <span class="keyword">return</span> isOdd ? <span class="string">"昼"</span> : <span class="string">"夜"</span>
+    <span class="keyword">else</span>:
+        <span class="keyword">return</span> isOdd ? <span class="string">"夜"</span> : <span class="string">"昼"</span></pre>
+
+<!-- ============================================================ -->
+<h2 id="interpretation">七、四占解读体系</h2>
+
+<p>经文："占有四：或星，或时，或数，或辞。"——占断需综合四个因素。</p>
+
+<h3>7.1 四占要素</h3>
+
+<table>
+  <tr><th>要素</th><th>来源</th><th>说明</th><th>程序化方式</th></tr>
+  <tr><td><strong>星</strong></td><td>五行</td><td>赞位对应五行（水/火/木/金/土），与首德相比</td><td>ZAN_WUXING[zanPos]</td></tr>
+  <tr><td><strong>时</strong></td><td>时令</td><td>占卜时的季节，与首的节气位置相比</td><td>getTimeFactor()</td></tr>
+  <tr><td><strong>数</strong></td><td>昼夜</td><td>赞的昼/夜属性，昼=从(吉)，夜=违(凶)</td><td>zanDayNight()</td></tr>
+  <tr><td><strong>辞</strong></td><td>赞辞</td><td>该赞的赞辞与测辞文本</td><td>getZanCi() / getZanCe()</td></tr>
+</table>
+
+<h3>7.2 表经纬系统</h3>
+
+<p>经文："旦则用经，夕则用纬。"——根据占卜时间选择不同的"表"（参照组）。</p>
+
+<table>
+  <tr><th>表类型</th><th>适用时辰</th><th>包含赞位</th><th>程序化判定</th></tr>
+  <tr><td><strong>经</strong></td><td>旦（早晨）</td><td>1, 5, 7</td><td>zanPos ∈ {1,5,7}</td></tr>
+  <tr><td><strong>纬</strong></td><td>夕（傍晚）</td><td>3, 4, 8</td><td>zanPos ∈ {3,4,8}</td></tr>
+  <tr><td><strong>杂</strong></td><td>中（午间/夜间）</td><td>2, 6, 9</td><td>zanPos ∈ {2,6,9}</td></tr>
+</table>
+
+<h3>7.3 三从三违吉凶判定</h3>
+
+<p>取当前表中的3个赞位，判断各自的昼/夜（从/违），按六种模式判定吉凶：</p>
+
+<table>
+  <tr><th>模式</th><th>含义</th><th>吉凶</th><th>建议</th></tr>
+  <tr><td>一从二从三从</td><td>三皆从</td><td><strong>大休</strong></td><td>大吉，宜行</td></tr>
+  <tr><td>一从二从三违</td><td>前吉后凶</td><td>始中休终咎</td><td>宜早行</td></tr>
+  <tr><td>一从二违三违</td><td>初吉后凶</td><td>始休中终咎</td><td>中末宜慎</td></tr>
+  <tr><td>一违二从三从</td><td>先凶后吉</td><td>始咎中终休</td><td>宜待时</td></tr>
+  <tr><td>一违二违三从</td><td>先凶后吉</td><td>始中咎终休</td><td>终得安</td></tr>
+  <tr><td>一违二违三违</td><td>三皆违</td><td><strong>大咎</strong></td><td>大凶，不宜行</td></tr>
+</table>
+
+<pre><span class="keyword">function</span> judgeFortune(result):
+    states = []
+    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="number">1</span>..<span class="number">9</span>:
+        states[i] = zanDayNight(shou.index, i) == <span class="string">"昼"</span> ? <span class="string">"从"</span> : <span class="string">"违"</span>
+
+    <span class="comment">// 取当前赞所在表的3个状态</span>
+    biaoType = result.biao.type
+    <span class="keyword">if</span> biaoType == <span class="string">"经"</span>: group = [states[<span class="number">1</span>], states[<span class="number">5</span>], states[<span class="number">7</span>]]
+    <span class="keyword">if</span> biaoType == <span class="string">"纬"</span>: group = [states[<span class="number">3</span>], states[<span class="number">4</span>], states[<span class="number">8</span>]]
+    <span class="keyword">if</span> biaoType == <span class="string">"杂"</span>: group = [states[<span class="number">2</span>], states[<span class="number">6</span>], states[<span class="number">9</span>]]
+
+    pattern = buildPattern(group)  <span class="comment">// 如 "一从二从三从"</span>
+    <span class="keyword">return</span> FORTUNE_MAP[pattern]</pre>
+
+<!-- ============================================================ -->
+<h2 id="api">八、引擎 API 参考</h2>
+
+<h3>8.1 核心卜卦函数</h3>
+
+<table>
+  <tr><th>函数</th><th>参数</th><th>返回</th><th>说明</th></tr>
+  <tr><td><code>divineBySticks(rng?)</code></td><td>可选随机数生成器</td><td>DivinationResult</td><td>揲蓍法完整卜卦</td></tr>
+  <tr><td><code>divineByCoins(rng?)</code></td><td>可选随机数生成器</td><td>DivinationResult</td><td>硬币法完整卜卦</td></tr>
+  <tr><td><code>singleYang(rng?)</code></td><td>可选随机数生成器</td><td>1|2|3</td><td>单次揲蓍</td></tr>
+  <tr><td><code>singleCoinToss(rng?)</code></td><td>可选随机数生成器</td><td>{value,coins,yangCount}</td><td>单次掷币</td></tr>
+</table>
+
+<h3>8.2 计算函数</h3>
+
+<table>
+  <tr><th>函数</th><th>参数</th><th>返回</th><th>说明</th></tr>
+  <tr><td><code>shouIndex(f,z,b,j)</code></td><td>方州部家四值</td><td>1-81</td><td>正向计算首序号</td></tr>
+  <tr><td><code>shouPosition(idx)</code></td><td>首序号</td><td>{fang,zhou,bu,jia}</td><td>逆向计算方位</td></tr>
+  <tr><td><code>shouYinYang(idx)</code></td><td>首序号</td><td>"阳"|"阴"</td><td>判断首的阴阳</td></tr>
+  <tr><td><code>zanGlobalIndex(s,z)</code></td><td>首序号,赞位</td><td>1-729</td><td>计算赞全局序号</td></tr>
+  <tr><td><code>zanDayNight(s,z)</code></td><td>首序号,赞位</td><td>"昼"|"夜"</td><td>判断赞的昼夜</td></tr>
+  <tr><td><code>zanXiuJiu(s,z)</code></td><td>首序号,赞位</td><td>"休"|"咎"</td><td>判断赞的吉凶</td></tr>
+</table>
+
+<h3>8.3 解读函数</h3>
+
+<table>
+  <tr><th>函数</th><th>参数</th><th>返回</th><th>说明</th></tr>
+  <tr><td><code>judgeFortune(result)</code></td><td>卜卦结果</td><td>{pattern,level,desc}</td><td>三从三违吉凶判定</td></tr>
+  <tr><td><code>getBiao(zanPos)</code></td><td>赞位</td><td>{type,members}</td><td>获取表（经/纬/杂）</td></tr>
+  <tr><td><code>getShouInfo(idx)</code></td><td>首序号</td><td>Shou对象</td><td>获取首完整信息</td></tr>
+</table>
+
+<h3>8.4 数据函数（divination-data.js）</h3>
+
+<table>
+  <tr><th>函数</th><th>参数</th><th>返回</th><th>说明</th></tr>
+  <tr><td><code>getShouData(idx)</code></td><td>首序号</td><td>首对象</td><td>获取首数据（含赞数组）</td></tr>
+  <tr><td><code>getZanData(s,z)</code></td><td>首序号,赞位</td><td>赞对象</td><td>获取赞数据（赞辞+测辞）</td></tr>
+  <tr><td><code>getShouCi(idx)</code></td><td>首序号</td><td>string</td><td>获取首辞</td></tr>
+  <tr><td><code>getZanCi(s,z)</code></td><td>首序号,赞位</td><td>string</td><td>获取赞辞</td></tr>
+  <tr><td><code>getZanCe(s,z)</code></td><td>首序号,赞位</td><td>string</td><td>获取测辞</td></tr>
+</table>
+
+<h3>8.5 工具函数</h3>
+
+<table>
+  <tr><th>函数</th><th>参数</th><th>返回</th><th>说明</th></tr>
+  <tr><td><code>seededRNG(seed)</code></td><td>数字种子</td><td>function</td><td>带种子的随机数生成器</td></tr>
+  <tr><td><code>seedFromString(str)</code></td><td>字符串</td><td>number</td><td>从字符串生成种子</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2 id="usage">九、使用示例</h2>
+
+<h3>9.1 基本卜卦</h3>
+
+<pre><span class="comment">// 揲蓍法</span>
+<span class="keyword">const</span> engine = <span class="keyword">require</span>(<span class="string">'./divination-engine.js'</span>);
+<span class="keyword">const</span> result = engine.divineBySticks();
+console.log(result.shou.name);       <span class="comment">// 如 "中"</span>
+console.log(result.zan.name);        <span class="comment">// 如 "初一"</span>
+console.log(result.zan.xiuJiu);     <span class="comment">// "休" 或 "咎"</span>
+
+<span class="comment">// 硬币法</span>
+<span class="keyword">const</span> coinResult = engine.divineByCoins();
+console.log(coinResult.shou.name);  <span class="comment">// 如 "乐"</span></pre>
+
+<h3>9.2 带吉凶判定</h3>
+
+<pre><span class="keyword">const</span> result = engine.divineBySticks();
+<span class="keyword">const</span> fortune = engine.judgeFortune(result);
+console.log(fortune.pattern);  <span class="comment">// 如 "一从二从三从"</span>
+console.log(fortune.level);   <span class="comment">// 如 "大休"</span>
+console.log(fortune.desc);    <span class="comment">// 如 "三皆从，大吉之象"</span></pre>
+
+<h3>9.3 带赞辞测辞</h3>
+
+<pre><span class="keyword">const</span> data = <span class="keyword">require</span>(<span class="string">'./divination-data.js'</span>);
+<span class="keyword">const</span> result = engine.divineBySticks();
+
+console.log(data.getShouCi(result.shou.index));           <span class="comment">// 首辞</span>
+console.log(data.getZanCi(result.shou.index, result.zan.position));  <span class="comment">// 赞辞</span>
+console.log(data.getZanCe(result.shou.index, result.zan.position));  <span class="comment">// 测辞</span></pre>
+
+<h3>9.4 确定性卜卦（可复现）</h3>
+
+<pre><span class="comment">// 从问题文本生成种子，实现可复现的确定性卜卦</span>
+<span class="keyword">const</span> question = <span class="string">"今日出行是否顺利"</span>;
+<span class="keyword">const</span> seed = engine.seedFromString(question);
+<span class="keyword">const</span> rng = engine.seededRNG(seed);
+
+<span class="keyword">const</span> result = engine.divineBySticks(rng);
+<span class="comment">// 相同的 question 总是产生相同的 result</span></pre>
+
+<h3>9.5 逆向查询</h3>
+
+<pre><span class="comment">// 从首序号查询方位信息</span>
+<span class="keyword">const</span> pos = engine.shouPosition(<span class="number">25</span>);
+<span class="comment">// → { fang: 1, zhou: 3, bu: 2, jia: 3 } 即 "乐首"</span>
+
+<span class="comment">// 从方州部家计算首序号</span>
+<span class="keyword">const</span> idx = engine.shouIndex(<span class="number">1</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">3</span>);
+<span class="comment">// → 25</span></pre>
+
+<h3>9.6 浏览器中使用</h3>
+
+<pre>&lt;script src=<span class="string">"divination-engine.js"</span>&gt;&lt;/script&gt;
+&lt;script src=<span class="string">"divination-data.js"</span>&gt;&lt;/script&gt;
+&lt;script&gt;
+  <span class="keyword">const</span> result = TaixuanEngine.divineByCoins();
+  <span class="keyword">const</span> fortune = TaixuanEngine.judgeFortune(result);
+  <span class="keyword">const</span> ci = TaixuanData.getZanCi(result.shou.index, result.zan.position);
+  console.log(result, fortune, ci);
+&lt;/script&gt;</pre>
+
+<div class="note" style="margin-top:2rem">
+  <strong>文件清单：</strong><br>
+  · <code>divination-engine.js</code> — 核心引擎（约380行），含全部算法和数据常量<br>
+  · <code>divination-data.js</code> — 81首数据（首辞+赞辞+测辞），含模板结构<br>
+  · <code>divination-spec.html</code> — 本规格文档（可视化流程图+伪代码+API参考）
+</div>
+
+</article>
+
+</body>
+</html>

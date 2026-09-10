@@ -1,0 +1,7 @@
+# OS artifacts
+.DS_Store
+._*
+
+# Python build artifacts
+__pycache__/
+*.pyc
