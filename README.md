@@ -14,12 +14,11 @@
    python3 taixuan-jing/gen_html.py
    ```
 
-   生成结果会写入 `web/annotations.html`。
+   生成结果会写入仓库根目录的 `annotations.html`。
 
 3. 启动静态服务器：
 
    ```bash
-   cd web
    python3 -m http.server 8000
    ```
 
@@ -33,6 +32,6 @@
 
 - Source：`Deploy from a branch`
 - Branch：默认分支
-- Folder：`/web`
+- Folder：`/ (root)`
 
 如果本地源文本发生变化，重新运行 `gen_html.py`，然后提交 `web/annotations.html` 与 `web/_shared/fonts/`。

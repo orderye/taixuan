@@ -10,8 +10,8 @@ from annotations_extra import SIMMA, HU, EXTRA
 
 # 相对于仓库根目录寻找 taixuan.txt，便于 GitHub Pages/CI 构建。
 SRC = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "taixuan.txt")
-# 输出到 web/，GitHub Pages 可直接发布该目录下的静态文件。
-OUT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "web", "annotations.html")
+# GitHub Pages 发布仓库根目录时，可直接访问根级 annotations.html。
+OUT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "annotations.html")
 
 # --- 81 首 names in order ---
 SHOU_NAMES = [
